@@ -8,32 +8,56 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 - List at least two concrete bugs you noticed at the start  
   (for example: "the hints were backwards").
 
-**Bug Reproduction Log**
+When I first ran the game, it looked mostly normal and let me submit guesses, but two things were broken:
 
-Document at least 3 bugs you found. Add rows as needed.
+1. **Cannot reset / start a new game.** After I finished a round of guessing, pressing the new game button did nothing — the game did not reset and the input box was not cleared, so I was stuck and could not play again.
+2. **"Go lower" / "Go higher" hints are confusing and reversed.** The wording was ambiguous. I read "Go lower" as "your number is too big, pick something lower," but the game actually meant the opposite, so the hints pointed me in the wrong direction.
 
-| Input | Expected Behavior | Actual Behavior | Console Output / Error |
-|-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+**Bug Reproduction Logs**
+
+Document at least 3 reproducible bugs you found. Add rows as needed.
+
+| Input Used | Expected Behavior | Actual Behavior | Console Error / Output |
+|------------|-------------------|-----------------|------------------------|
+| Guess of 60 when the secret is 40 (use Developer Debug Info to see the secret) | "Too High" hint telling me to go LOWER | Outcome is "Too High" but the message shown is "📈 Go HIGHER!" — the hint direction is reversed | none |
+| Finish a round (win or run out of attempts), then click "New Game 🔁" | Game resets: new secret, attempts/score/history cleared, input box emptied, board playable again | Button does nothing useful — the "You already won / Game over" message reappears, the input box keeps my old guess, and the game stays stuck | none |
+| On an even-numbered attempt, guess 9 when the secret is 40 | "Too Low" hint telling me to go HIGHER | Hint flips incorrectly because on even attempts the secret is compared as text ("9" > "40" is True as strings), so the direction is inconsistent between turns | none |
 
 ---
 
 ## 2. How did you use AI as a teammate?
 
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
-- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
-- Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result).
+
+I used Claude Code (an AI coding assistant in agent mode) inside VS Code. I had it read `app.py` and `logic_utils.py`, explain the code, find bugs, apply fixes, and run the tests with me reviewing every diff.
+
+**Correct AI suggestion (verified true):**
+- *What the AI suggested:* It pointed out that the "New Game" button only reset `attempts` and `secret` but never reset `status` back to `"playing"`. Because the guard `if st.session_state.status != "playing": st.stop()` runs before the Submit handler, the game stayed stuck after a win/loss and Submit appeared to do nothing.
+- *Was it correct?* Yes, correct.
+- *How I verified it:* I reproduced the bug in the running game (win a round → New Game → Submit did nothing). After the AI added resets for `status`, `score`, `history`, and cleared the input box, I replayed the same steps and the board reset and accepted new guesses. See the `# FIX` comment near the `if new_game:` block in `app.py`.
+
+**Incorrect / misleading AI behavior (verified and caught):**
+- *What the AI suggested:* The starter `check_guess` had labels and hint messages that disagreed ("Too High" → "Go HIGHER!"). An AI-style "production-ready" claim in the starter code presented this logic as fine, and at first glance the messages looked plausible.
+- *Was it correct?* Incorrect / misleading — the hint direction was reversed, and a separate glitch cast the secret to a string on even attempts so comparisons happened as text ("9" > "40" is True).
+- *How I verified it:* I guessed a number above the secret (using Developer Debug Info to see it) and the game told me to "Go HIGHER", which is wrong. I fixed the messages and removed the string cast, then confirmed with pytest (`test_guess_too_high` asserts the message contains "LOWER") and by replaying the game.
 
 ---
 
 ## 3. Debugging and testing your fixes
 
 - How did you decide whether a bug was really fixed?
-- Describe at least one test you ran (manual or using pytest)  
-  and what it showed you about your code.
+
+I used two checks for every fix: replay the exact reproduction steps in the running Streamlit app, and run the automated tests. A bug only counted as fixed when the game behaved correctly AND the relevant test passed.
+
+- Describe at least one test you ran (manual or using pytest) and what it showed you about your code.
+
+I ran `python -m pytest -v`. After refactoring the logic into `logic_utils.py`, all 3 tests passed: `test_winning_guess`, `test_guess_too_high`, and `test_guess_too_low`. The two directional tests now also assert that the hint message contains "LOWER" / "HIGHER", so they directly prove the high/low bug is fixed. The starter tests originally asserted `check_guess` returned a plain string, but the real function returns a `(outcome, message)` tuple — running them showed me that mismatch, and I updated the tests to unpack the tuple.
+
+Manual test: I won a game, clicked New Game, and confirmed the input box cleared and I could submit again; I also switched difficulty mid-game and confirmed the secret stayed inside the new displayed range.
+
 - Did AI help you design or understand any tests? How?
+
+Yes. The AI explained why the starter tests were failing (string vs. tuple return), suggested unpacking the tuple, and added the `"LOWER"`/`"HIGHER"` message assertions so the tests guard against the high/low bug regressing. It also ran pytest and showed me the output so I could verify the results myself.
 
 ---
 
