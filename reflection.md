@@ -65,11 +65,21 @@ Yes. The AI explained why the starter tests were failing (string vs. tuple retur
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
 
+Streamlit re-runs your entire script from top to bottom every single time you interact with the page — click a button, type in a box, change a dropdown. So any normal variable resets to its starting value on every interaction, which is why the secret number kept "changing" — it was being regenerated on each rerun. `st.session_state` is a dictionary that survives those reruns, so it's where you store anything that must persist (the secret, score, attempts, game status). The bugs in this project taught me that the *order* of code matters too: the `New Game` button has to reset `status` back to `"playing"` before the guard `if status != "playing": st.stop()` runs, otherwise the script stops early and the rest of the page never executes. In short: reruns = the script restarts on every click; session_state = the memory that lets the game remember what happened before.
+
 ---
 
 ## 5. Looking ahead: your developer habits
 
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
   - This could be a testing habit, a prompting strategy, or a way you used Git.
+
+I want to keep the habit of verifying every fix two ways — reproducing the bug in the running app AND running `pytest` — before calling it done. Writing a small reproduction case first (exact input, expected vs. actual) made it obvious whether a change actually worked instead of just looking right.
+
 - What is one thing you would do differently next time you work with AI on a coding task?
+
+Next time I would read the AI's diffs more carefully before accepting them, and ask it to change only one thing at a time. A few times the AI wanted to "clean up" extra code or modify the test file, and I had to stop and check whether that was actually correct (for example, it edited the tests to match the tuple return value — I had to confirm that was the right call rather than blindly accepting it). I also rejected a commit-straight-to-main step until I understood whether it was the right Git workflow.
+
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+
+I no longer trust "production-ready" AI code at face value — the starter was full of confident, plausible-looking bugs. AI is a fast teammate for finding and fixing issues, but I'm the one who has to reproduce, test, and verify before anything is really fixed.

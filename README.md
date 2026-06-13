@@ -25,28 +25,50 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+**Game's purpose:** A simple Streamlit number-guessing game. The app picks a secret number within a range that depends on the difficulty (Easy 1–20, Normal 1–100, Hard 1–50). The player submits guesses, gets "Too High / Too Low" hints, earns a score, and has a limited number of attempts to win.
+
+**Bugs I found:**
+- **Reversed hints.** "Too High" told the player to "Go HIGHER" (and "Too Low" → "Go LOWER") — the hint direction was backwards.
+- **Hints flipped on even attempts.** The secret was cast to a string on even-numbered attempts, so comparisons happened as text (e.g. `"9" > "40"` is `True`), making the direction inconsistent turn to turn.
+- **New Game didn't work.** It reset `attempts`/`secret` but never reset `status`, so after a win/loss the guard `st.stop()` ran first and Submit did nothing. The input box also kept the old value, and score/history weren't cleared.
+- **Secret could fall outside the range.** The secret was generated once and never regenerated when difficulty changed, so an Easy (1–20) game could keep a secret of 91 from a previous Normal game — making it impossible to win.
+- **Hard-coded range text.** The prompt always said "between 1 and 100" regardless of the selected difficulty.
+
+**Fixes I applied:**
+- Swapped the hint messages so they match the outcome (Too High → 📉 Go LOWER, Too Low → 📈 Go HIGHER).
+- Removed the string-cast glitch so the secret stays an int every turn.
+- Made New Game a full reset: `status` → `playing`, plus `score`, `history`, attempts, a new secret, and a cleared input box.
+- Regenerate the secret (and reset the round) whenever difficulty changes, so the secret always stays inside the displayed range.
+- Replaced the hard-coded prompt with the actual `low`/`high` range.
+- Refactored the core logic (`get_range_for_difficulty`, `parse_guess`, `check_guess`, `update_score`) out of `app.py` into `logic_utils.py`, and updated the tests to match the `(outcome, message)` return value.
 
 ## 📸 Demo Walkthrough
 
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
+A sample game on **Normal** difficulty (range 1–100, 8 attempts) where the secret number is **63**:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. The page shows "Guess a number between 1 and 100. Attempts left: 8".
+2. User enters a guess of **40** and clicks **Submit Guess 🚀** → game returns **"Too Low → 📈 Go HIGHER!"**.
+3. User enters **80** → **"Too High → 📉 Go LOWER!"**. (Hints now point the correct direction.)
+4. User enters **60** → **"Too Low → 📈 Go HIGHER!"**. The score updates after each guess and "Attempts left" decreases.
+5. User enters **63** → **"🎉 Correct!"**, balloons appear, and the win message shows the secret and final score. The game status becomes "won".
+6. User clicks **New Game 🔁** → the input box clears, a fresh secret is chosen in range, score/history reset, and the board is playable again.
+7. (Bonus) User switches difficulty to **Easy** mid-game → a fresh game starts in the 1–20 range and the prompt updates to "between 1 and 20", so the secret can never be out of range.
 
 **Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
 
 ## 🧪 Test Results
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+$ python -m pytest tests/ -v
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.0.3, pluggy-1.6.0
+collected 3 items
+
+tests/test_game_logic.py::test_winning_guess PASSED                      [ 33%]
+tests/test_game_logic.py::test_guess_too_high PASSED                     [ 66%]
+tests/test_game_logic.py::test_guess_too_low PASSED                      [100%]
+
+============================== 3 passed in 0.02s ==============================
 ```
 
 ## 🚀 Stretch Features
