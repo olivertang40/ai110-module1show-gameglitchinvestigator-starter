@@ -61,7 +61,7 @@ For the score asymmetry bug I ran `python -m pytest tests/ -v` after adding `tes
 
 For the range validation bug I ran `parse_guess("999", 1, 100)` directly in the terminal and confirmed `ok=False` with the message "Please enter a number between 1 and 100." I then added four boundary tests (`test_parse_guess_too_high_rejects`, `test_parse_guess_boundary_low_accepts`, etc.) and ran `pytest` to confirm all 11 tests pass with zero failures.
 
-Final full run: `python -m pytest tests/ -v` → **11 passed in 0.03s**.
+Final full run: `python -m pytest tests/ -v` → **12 passed in 0.09s**.
 
 - Did AI help you design or understand any tests? How?
 
@@ -82,12 +82,12 @@ Streamlit re-runs your entire script from top to bottom every single time you in
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
   - This could be a testing habit, a prompting strategy, or a way you used Git.
 
-I want to keep the habit of verifying every fix two ways — reproducing the bug in the running app AND running `pytest` — before calling it done. Writing a small reproduction case first (exact input, expected vs. actual) made it obvious whether a change actually worked instead of just looking right.
+I want to keep the **two-gate verification habit**: every fix must pass both a manual reproduction step in the running app AND a pytest case that specifically targets the bug. This project showed me that "the code looks right" is not the same as "the code is right." The boundary tests for `parse_guess` in particular caught a fence-post case I would have missed if I had only eyeballed the logic — and those tests now live permanently in the suite as regression guards.
 
 - What is one thing you would do differently next time you work with AI on a coding task?
 
-Next time I would read the AI's diffs more carefully before accepting them, and ask it to change only one thing at a time. A few times the AI wanted to "clean up" extra code or modify the test file, and I had to stop and check whether that was actually correct (for example, it edited the tests to match the tuple return value — I had to confirm that was the right call rather than blindly accepting it). I also rejected a commit-straight-to-main step until I understood whether it was the right Git workflow.
+I would give the AI a single, tightly scoped instruction at a time rather than a multi-step prompt like "find bugs, fix them, update the tests, and document everything." When the scope is wide, the AI tends to change more files than necessary and it becomes harder to review each diff carefully. Asking for one change, reviewing it, then asking for the next keeps me in control of what actually lands in the codebase.
 
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
 
-I no longer trust "production-ready" AI code at face value — the starter was full of confident, plausible-looking bugs. AI is a fast teammate for finding and fixing issues, but I'm the one who has to reproduce, test, and verify before anything is really fixed.
+I no longer treat "the AI wrote it" as evidence that code is correct — the starter was packed with confident, plausible-looking bugs, including one that added points for wrong answers. AI is genuinely useful as a debugging partner, but the human has to own the verification loop: reproduce the bug, review the diff, run the tests, and only then call it fixed.

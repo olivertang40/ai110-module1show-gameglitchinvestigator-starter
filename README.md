@@ -62,14 +62,26 @@ A sample game on **Normal** difficulty (range 1–100, 8 attempts) where the sec
 $ python -m pytest tests/ -v
 ============================= test session starts =============================
 platform win32 -- Python 3.11.9, pytest-9.0.3, pluggy-1.6.0
-collected 3 items
+rootdir: ...\ai110-module1show-gameglitchinvestigator-starter
+collected 12 items
 
-tests/test_game_logic.py::test_winning_guess PASSED                      [ 33%]
-tests/test_game_logic.py::test_guess_too_high PASSED                     [ 66%]
-tests/test_game_logic.py::test_guess_too_low PASSED                      [100%]
+tests/test_game_logic.py::test_winning_guess PASSED                      [  8%]
+tests/test_game_logic.py::test_guess_too_high PASSED                     [ 16%]
+tests/test_game_logic.py::test_guess_too_low PASSED                      [ 25%]
+tests/test_game_logic.py::test_score_too_high_odd_attempt PASSED         [ 33%]
+tests/test_game_logic.py::test_score_too_high_even_attempt PASSED        [ 41%]
+tests/test_game_logic.py::test_score_too_low_always_subtracts PASSED     [ 50%]
+tests/test_game_logic.py::test_score_win_decreases_with_attempts PASSED  [ 58%]
+tests/test_game_logic.py::test_parse_guess_too_high_rejects PASSED       [ 66%]
+tests/test_game_logic.py::test_parse_guess_too_low_rejects PASSED        [ 75%]
+tests/test_game_logic.py::test_parse_guess_boundary_low_accepts PASSED   [ 83%]
+tests/test_game_logic.py::test_parse_guess_boundary_high_accepts PASSED  [ 91%]
+tests/test_game_logic.py::test_parse_guess_no_range_accepts_any_int PASSED [100%]
 
-============================== 3 passed in 0.02s ==============================
+============================== 12 passed in 0.09s ==============================
 ```
+
+The original 3 starter tests cover correct win detection and hint direction. The 9 new tests added in Phase 2/3 guard both fixed bugs: 4 tests for the score-asymmetry fix (parity bug on even attempts) and 5 tests for the range-validation fix (boundary values, out-of-range rejection, legacy no-range call).
 
 ## 🚀 Stretch Features
 
