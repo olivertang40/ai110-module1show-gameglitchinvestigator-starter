@@ -54,8 +54,8 @@ if "difficulty" not in st.session_state:
     st.session_state.difficulty = difficulty
 
 # FIX: Secret used to be generated once and never refreshed when difficulty
-# changed, so it could fall outside the new range (e.g. 91 in an Easy 1-20 game).
-# AI suggested tracking the active difficulty and starting a fresh game on change.
+# changed, so it could fall outside the new range (e.g. 91 in Easy 1-20).
+# AI suggested tracking the active difficulty and starting a fresh game on it.
 if difficulty != st.session_state.difficulty:
     st.session_state.difficulty = difficulty
     st.session_state.secret = random.randint(low, high)
@@ -94,8 +94,8 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 # FIX: New Game used to reset only attempts/secret but NOT status, so after a
-# win/loss the guard below kept calling st.stop() and Submit did nothing. AI
-# helped me see I also needed to reset status/score/history and clear the input.
+# win/loss the guard below kept calling st.stop() and Submit did nothing.
+# AI helped me see I also needed to reset status/score/history and clear input.
 if new_game:
     st.session_state.attempts = 0
     st.session_state.secret = random.randint(low, high)

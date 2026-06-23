@@ -26,14 +26,15 @@ def parse_guess(raw: str, low: int = None, high: int = None):
     except Exception:
         return False, None, "That is not a number."
 
-    # FIX: Added range validation in collaboration with AI. I identified the bug
-    # (out-of-range inputs silently accepted, wasting an attempt with no feedback),
-    # and AI suggested making low/high optional parameters so existing callers
-    # without range info still work. I verified by running parse_guess("999", 1, 100)
-    # directly and confirming ok=False, then re-ran pytest to check no regressions.
+    # FIX: Added range validation in collaboration with AI.
+    # I identified the bug (out-of-range inputs silently accepted, wasting an
+    # attempt with no feedback), and AI suggested making low/high optional
+    # parameters so existing callers without range info still work.
+    # Verified: parse_guess("999", 1, 100) returns ok=False; pytest clean.
     if low is not None and high is not None:
         if value < low or value > high:
-            return False, None, f"Please enter a number between {low} and {high}."
+            msg = f"Please enter a number between {low} and {high}."
+            return False, None, msg
 
     return True, value, None
 
@@ -61,12 +62,11 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
             points = 10
         return current_score + points
 
-    # FIX: Removed parity-based scoring in collaboration with AI. I spotted the
-    # asymmetry by watching the score go UP after a wrong guess on attempt 2.
-    # AI confirmed the `attempt_number % 2 == 0` branch was the cause and
-    # suggested removing it so both wrong outcomes always subtract 5. I verified
-    # with a direct call — update_score(0, "Too High", 2) now returns -5 — and
-    # added test_score_too_high_even_attempt as a regression guard.
+    # FIX: Removed parity-based scoring in collaboration with AI.
+    # I spotted the asymmetry by watching the score go UP after a wrong guess
+    # on attempt 2. AI confirmed the `attempt_number % 2 == 0` branch was the
+    # cause and suggested removing it so both wrong outcomes subtract 5.
+    # Verified: update_score(0, "Too High", 2) now returns -5; pytest clean.
     if outcome == "Too High":
         return current_score - 5
 
