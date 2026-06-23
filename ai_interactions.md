@@ -10,7 +10,7 @@
 
 **What task did you give the agent?**
 
-I used Kiro (an AI coding assistant in agent mode) inside VS Code. I asked it to investigate the broken Streamlit guessing game, fix the bugs I noticed (the reversed Higher/Lower hints, the broken "New Game" button, and the secret number falling outside the difficulty range), refactor the core logic out of `app.py` into `logic_utils.py`, make the automated tests pass, and document the work in `README.md` and `reflection.md`.
+I used Claude Code (an AI coding assistant in agent mode) inside VS Code. I asked it to investigate the broken Streamlit guessing game, fix the bugs I noticed (the reversed Higher/Lower hints, the broken "New Game" button, and the secret number falling outside the difficulty range), refactor the core logic out of `app.py` into `logic_utils.py`, make the automated tests pass, and document the work in `README.md` and `reflection.md`.
 
 **What did the agent do?**
 

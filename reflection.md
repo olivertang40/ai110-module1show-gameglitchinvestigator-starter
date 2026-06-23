@@ -35,7 +35,7 @@ I played the game twice (once on Normal difficulty, once on Easy) and logged all
 
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
 
-I used Kiro (an AI coding assistant in agent mode) inside VS Code. I had it read `app.py` and `logic_utils.py`, explain the code, find bugs, apply fixes, and run the tests with me reviewing every diff before accepting.
+I used Claude Code (an AI coding assistant in agent mode) inside VS Code. I had it read `app.py` and `logic_utils.py`, explain the code, find bugs, apply fixes, and run the tests with me reviewing every diff before accepting.
 
 **Correct AI suggestion (verified true):**
 - *What the AI suggested:* After I described the score going *up* after a wrong guess on attempt 2, the AI immediately pointed to the `attempt_number % 2 == 0` branch inside `update_score` in `logic_utils.py`. It explained that the branch was adding +5 on even attempts regardless of whether the outcome was correct, and suggested removing the parity check entirely so both "Too High" and "Too Low" always deduct 5 points.
